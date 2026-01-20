@@ -2,7 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 from typing import List
 from urllib.parse import urljoin, urlparse, urldefrag
-from utils import retry
+from utils.retry import retry
 
 HEADERS = {
     "User-Agent": (

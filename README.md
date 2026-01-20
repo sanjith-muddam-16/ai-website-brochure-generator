@@ -35,6 +35,38 @@ The system includes basic resilience mechanisms to handle real-world failures:
 
 This ensures stable behavior under non-ideal network and API conditions.
 
+### Rate-Limit Awareness
+
+LLM requests are throttled and retried adaptively to respect API rate limits and ensure stable behavior under load.
+
+### Structured Context Assembly
+
+Instead of passing raw website text to the LLM, the system:
+
+- Extracts semantic sections from each page (About, Products, Features, Careers, etc.)
+- Labels content explicitly by section
+- Preserves semantic boundaries during truncation
+
+This significantly improves:
+
+- Token efficiency
+- Output consistency
+- Section completeness
+- Model interpretability
+
+### Token Budget Strategy
+
+To prevent high-value content from being truncated:
+
+- Each section is assigned a deterministic priority weight
+- The overall context budget is allocated proportionally
+- High-signal sections (Products, Features) are always preserved
+- Low-signal sections (Careers, Contact) cannot crowd out core content
+
+This ensures stable, repeatable generation under strict context limits.
+
+---
+
 ## 🧠 How It Works
 
 1. User enters a website URL

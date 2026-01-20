@@ -26,21 +26,18 @@ The initial system assumed ideal network and API behavior, causing transient fai
 
 ---
 
-### 1.2 No Rate-Limit Awareness
+### 1.2 No Rate-Limit Awareness — ✅ Implemented
 
-**Why it exists**  
-Rate-limit handling is intentionally deferred to avoid premature complexity during prototyping.
+**Solution implemented**
 
-**Impact on the system**
+- Rate-limit errors detected explicitly
+- Adaptive retry respects Retry-After headers
+- Centralized request throttling added
 
-- Concurrent usage may trigger API throttling
-- Requests may fail unpredictably under load
+**Impact**
 
-**Planned improvements**
-
-- Centralized request throttling
-- Adaptive retry with rate-limit headers
-- Queue-based request scheduling
+- Reduced API throttling
+- Predictable behavior under concurrent usage
 
 ---
 
@@ -65,40 +62,42 @@ Initial link extraction returned raw `href` values, leading to broken relative U
 
 ## Phase 2 – Context Quality & LLM Efficiency
 
-### 2.1 Unstructured Context Input
+### 2.1 Unstructured Context Input — Implemented ✅
 
-**Why it exists**  
-Raw page text is passed directly to the model to validate end-to-end feasibility.
+**Problem**
+Raw page text was passed directly to the LLM, forcing the model to infer
+structure implicitly and wasting tokens.
 
-**Impact on the system**
+**What was done**
 
-- Token usage is inefficient
-- Important content may be diluted
-- Model must infer structure implicitly
+- Introduced semantic chunking based on HTML structure
+- Labeled sections explicitly (About, Products, Features, Careers, etc.)
+- Preserved section boundaries during context construction
 
-**Planned improvements**
+**Outcome**
 
-- Page chunking with semantic boundaries
-- Section-level labeling (About, Products, Careers, etc.)
-- Relevance-weighted context assembly
+- Improved token efficiency
+- More consistent and complete brochure sections
+- Reduced hallucination risk
 
 ---
 
-### 2.2 No Token Budget Strategy
+### 2.2 Token Budget Strategy — Implemented ✅
 
-**Why it exists**  
-Token limits are currently enforced via truncation for simplicity.
+**Problem**
+Context truncation was previously blind and non-deterministic.
 
-**Impact on the system**
+**What was done**
 
-- Potential loss of high-value content
-- Non-deterministic content prioritization
+- Assigned priority weights to each semantic section
+- Allocated token budget deterministically by section importance
+- Ensured high-signal content is always preserved
 
-**Planned improvements**
+**Outcome**
 
-- Deterministic token allocation per section
-- Priority-based truncation
-- Model-aware context sizing
+- Stable, repeatable outputs
+- High-value sections are never truncated by low-signal content
+- Improved control over LLM behavior
 
 ---
 

@@ -6,22 +6,23 @@ This document outlines the current limitations of the system, why they exist, ho
 
 ## Phase 1 – Reliability & Robustness
 
-### 1.1 Missing Retry & Failure Handling
+### 1.1 Missing Retry & Failure Handling — ✅ Implemented
 
-**Why it exists**  
-The current implementation assumes ideal network and API behavior to keep the initial system minimal and readable.
+**Problem addressed**  
+The initial system assumed ideal network and API behavior, causing transient failures during scraping or LLM calls to terminate the pipeline.
 
-**Impact on the system**
+**Solution implemented**
 
-- Transient OpenAI API failures can terminate generation
-- Network timeouts during scraping can break the pipeline
-- User experience degrades under real-world conditions
+- Introduced a centralized retry utility with exponential backoff
+- Wrapped network scraping operations with retry logic
+- Wrapped OpenAI API calls with retry logic
+- Added graceful degradation for streaming interruptions
 
-**Planned improvements**
+**Impact**
 
-- Add exponential backoff retries for LLM calls
-- Graceful fallback on partial failures
-- Explicit timeout handling and user-visible error states
+- Improved resilience to transient network and API failures
+- Partial failures no longer crash the generation pipeline
+- More stable user experience under real-world conditions
 
 ---
 
@@ -43,21 +44,22 @@ Rate-limit handling is intentionally deferred to avoid premature complexity duri
 
 ---
 
-### 1.3 URL Normalization Gaps
+### 1.3 URL Normalization Gaps — ✅ Implemented
 
-**Why it exists**  
-Initial link extraction prioritizes simplicity over completeness.
+**Problem addressed**  
+Initial link extraction returned raw `href` values, leading to broken relative URLs, external domain noise, and duplicate pages.
 
-**Impact on the system**
+**Solution implemented**
 
-- Relative URLs may fail to resolve
-- Some relevant pages are skipped unintentionally
+- All extracted links are normalized to absolute URLs
+- Crawling is restricted to same-domain pages only
+- Canonical URL normalization removes fragments, query parameters, and trailing slash inconsistencies
 
-**Planned improvements**
+**Impact**
 
-- Normalize all links to absolute URLs
-- Restrict crawling to same-domain pages
-- Deduplicate canonical URLs
+- Reliable page fetching
+- Cleaner, domain-specific context
+- Reduced duplication and token waste
 
 ---
 
